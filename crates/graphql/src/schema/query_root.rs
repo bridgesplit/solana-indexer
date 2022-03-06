@@ -2,7 +2,7 @@ use indexer_core::db::queries;
 use objects::{
     creator::Creator,
     marketplace::Marketplace,
-    nft::Nft,
+    nft::*,
     profile::{Profile, TwitterProfilePictureResponse, TwitterShowResponse},
     storefront::Storefront,
     wallet::Wallet,
@@ -79,11 +79,13 @@ impl QueryRoot {
 
     fn nfts(
         &self,
+        limit: i32,
+        offset: i32,
         context: &AppContext,
         #[graphql(description = "Filter on owner address")] owners: Option<Vec<String>>,
         #[graphql(description = "Filter on creator address")] creators: Option<Vec<String>>,
         #[graphql(description = "Filter on attributes")] attributes: Option<Vec<AttributeFilter>>,
-    ) -> FieldResult<Vec<Nft>> {
+    ) -> FieldResult<NftWithCount> {
         if owners.is_none() && creators.is_none() {
             return Err(FieldError::new(
                 "No filter provided! Please provide at least one of the filters",
@@ -95,12 +97,17 @@ impl QueryRoot {
 
         let nfts = queries::metadatas::load_filtered(
             &conn,
+            limit.into(),
+            offset.into(),
             owners,
             creators,
             attributes.map(|a| a.into_iter().map(Into::into).collect()),
         )?;
 
-        Ok(nfts.into_iter().map(Into::into).collect())
+        Ok(NftWithCount {
+            nft: nfts.0.into_iter().map(Into::into).collect(),
+            count: nfts.1 as i32,
+        })
     }
 
     fn wallet(

@@ -197,3 +197,39 @@ impl Nft {
             .map_err(Into::into)
     }
 }
+
+#[derive(GraphQLObject)]
+pub struct NftCount {
+    pub count: i32,
+}
+
+#[derive(Debug, Clone, GraphQLObject)]
+#[graphql(context = AppContext)]
+
+pub struct NftWithCount {
+    pub nft: Vec<Nft>,
+    pub count: i32,
+}
+
+// #[derive(GraphQLUnion)]
+// #[graphql(Context = AppContext)]
+
+// pub enum NftWithCount {
+//     Vec(Vec<Nft>),
+//     NftCount(NftCount),
+// }
+
+// #[graphql_union]
+// trait NftWithCount {
+//
+//     fn nft(&self) -> Option<&Vec<Nft>> { None }
+//     fn nft_count(&self) -> Option<&NftCount> { None }
+// }
+
+// impl NftWithCount for Nft {
+//     fn nft(&self) -> Option<&Vec<Nft>> { Some(&self) }
+// }
+
+// impl NftWithCount for NftCount {
+//     fn nft_count(&self) -> Option<&NftCount> { Some(&self) }
+// }

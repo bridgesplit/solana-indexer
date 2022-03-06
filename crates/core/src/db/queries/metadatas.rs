@@ -1,6 +1,7 @@
 //! Query utilities for looking up  metadatas
 use diesel::{pg::expression::dsl::any, prelude::*};
 
+use super::pagination::*;
 use crate::{
     db::{
         models::Nft,
@@ -24,10 +25,12 @@ pub struct MetadataFilterAttributes {
 /// returns an error when the underlying queries throw an error
 pub fn load_filtered(
     conn: &Connection,
+    limit: i64,
+    offset: i64,
     owners: Option<Vec<String>>,
     creators: Option<Vec<String>>,
     attributes: Option<Vec<MetadataFilterAttributes>>,
-) -> Result<Vec<Nft>> {
+) -> Result<(Vec<Nft>, i64)> {
     let mut query = metadatas::table
         .inner_join(
             metadata_creators::table.on(metadatas::address.eq(metadata_creators::metadata_address)),
@@ -67,7 +70,7 @@ pub fn load_filtered(
             .filter(token_accounts::owner_address.eq(any(owners)));
     }
 
-    let rows: Vec<Nft> = query
+    let rows: (Vec<Nft>, i64) = query
         .select((
             metadatas::address,
             metadatas::name,
@@ -79,8 +82,9 @@ pub fn load_filtered(
         ))
         .distinct()
         .order_by(metadatas::name.desc())
-        .load(conn)
+        .paginate(1, 15)
+        .load_with_pagination(conn)
         .context("failed to load nft(s)")?;
 
-    Ok(rows.into_iter().map(Into::into).collect())
+    Ok((rows.0.into_iter().map(Into::into).collect(), rows.1))
 }
