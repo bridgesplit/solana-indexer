@@ -18,7 +18,7 @@ pub(self) mod prelude {
     };
     pub use juniper::{
         graphql_object, graphql_union, graphql_value, FieldError, FieldResult, GraphQLInputObject,
-        GraphQLObject, GraphQLUnion,
+        GraphQLObject,
     };
 
     pub(super) use super::{context::AppContext, dataloaders, objects, scalars, strings};

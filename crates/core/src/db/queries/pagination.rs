@@ -1,5 +1,9 @@
 use diesel::{
-    pg::Pg, prelude::*, query_builder::*, query_dsl::methods::LoadQuery, sql_types::BigInt,
+    pg::Pg,
+    prelude::*,
+    query_builder::{AstPass, Query, QueryBuilder, QueryFragment},
+    query_dsl::methods::LoadQuery,
+    sql_types::BigInt,
 };
 
 use crate::db::Connection;
@@ -31,7 +35,7 @@ impl<T> Pagination<T> {
         Self: LoadQuery<Connection, (U, i64)>,
     {
         let results = self.load::<(U, i64)>(conn)?;
-        let total = results.get(0).map(|x| x.1).unwrap_or(0);
+        let total = results.get(0).map_or(0, |x| x.1);
         let records = results.into_iter().map(|x| x.0).collect();
         Ok((records, total))
     }

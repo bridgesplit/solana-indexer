@@ -1,7 +1,7 @@
 //! Query utilities for looking up  metadatas
 use diesel::{pg::expression::dsl::any, prelude::*};
 
-use super::pagination::*;
+use super::pagination::Paginate;
 use crate::{
     db::{
         models::Nft,

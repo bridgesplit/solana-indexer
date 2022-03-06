@@ -2,7 +2,7 @@ use indexer_core::db::queries;
 use objects::{
     creator::Creator,
     marketplace::Marketplace,
-    nft::*,
+    nft::{Nft, NftWithCount},
     profile::{Profile, TwitterProfilePictureResponse, TwitterShowResponse},
     storefront::Storefront,
     wallet::Wallet,
@@ -106,7 +106,7 @@ impl QueryRoot {
 
         Ok(NftWithCount {
             nft: nfts.0.into_iter().map(Into::into).collect(),
-            count: nfts.1 as i32,
+            count: nfts.1.try_into().unwrap(),
         })
     }
 
