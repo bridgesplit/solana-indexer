@@ -82,7 +82,7 @@ pub fn load_filtered(
         ))
         .distinct()
         .order_by(metadatas::name.desc())
-        .paginate(1, 15)
+        .paginate(limit, offset)
         .load_with_pagination(conn)
         .context("failed to load nft(s)")?;
 
